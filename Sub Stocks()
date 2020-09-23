@@ -1,0 +1,159 @@
+
+
+Sub AllStocks()
+    'Dim LastSheet As Integer
+    For i = 1 To ActiveWorkbook.Worksheets.Count
+
+        ActiveWorkbook.Worksheets(i).Select
+        
+        Call Stocks
+    Next i
+
+End Sub
+
+Sub Stocks()
+    'Set variables
+    Dim Ticker As String
+    Dim Yearly_Change As Double
+    Dim Percent_Change As Double
+    Dim Total_Vol As Double
+    Dim Year_Open As Double
+    Dim Year_Close As Double
+    Dim Summary_Table_Row As Integer
+    Dim Greatest_Percent_Increase As Double
+    Dim Greatest_Percent_Decrease As Double
+    Dim Greatest_Total_Volume As Double
+    Dim GPI_ticker As String
+    Dim GPD_ticker As String
+    Dim GTV_ticker As String
+    
+    Cells(1, 9).Value = "Ticker"
+    Cells(1, 10).Value = "Yearly Change"
+    Cells(1, 11).Value = "Percent Change"
+    Cells(1, 12).Value = "Total Stock Volume"
+    Cells(2, 14).Value = "Greatest_Percent_Increase"
+    Cells(3, 14).Value = "Greatest_Percent_Decrease"
+    Cells(4, 14).Value = "Greatest_Total_Volume"
+    Cells(1, 15).Value = "Ticker"
+    Cells(1, 16).Value = "Value"
+
+
+    
+    Yearly_Change = 0
+    Year_Open = 0
+    Year_Close = 0
+    
+    'Keep track of the location of each ticker symbol in the next columns
+    Summary_Table_Row = 2
+    
+    Total_Vol = 0
+    
+    'Loop through all stocks
+    lastrow = Cells(Rows.Count, 1).End(xlUp).Row
+    
+    
+    
+    For i = 2 To lastrow
+    
+        ' Set the Year_Open for the first stock
+        If i = 2 Then
+            Year_Open = Cells(i, 3).Value
+        End If
+        
+        'Check if we are still within the same ticker symbol, if it is not...
+        If Cells(i + 1, 1).Value <> Cells(i, 1).Value Then
+        
+        
+        
+            ' Get year close and year change for this stock
+            Year_Close = Cells(i, 6).Value
+            Yearly_Change = Year_Close - Year_Open
+            
+            ' Get year open for NEXT stock
+            Year_Open = Year_Open + Cells(i + 1, 3).Value
+             If Year_Open <> 0 Then
+            Percent_Change = Yearly_Change / Year_Open
+            Else
+             End If
+         
+            'Set the Ticker Symbol for current stock
+            Ticker = Cells(i, 1).Value
+            
+            'Add to the total volume (this is the final total volume)
+            Total_Vol = Total_Vol + Cells(i, 7).Value
+            
+            'Print the Ticker Symbol in the appropriate columns
+            Range("I" & Summary_Table_Row).Value = Ticker
+            
+            'Print the Total_Vol to the appropriate columns
+            Range("L" & Summary_Table_Row).Value = Total_Vol
+            
+            ' Print yearly change for current stock
+            Range("J" & Summary_Table_Row).Value = Yearly_Change
+            
+            'Print Percent Change to summary table row
+            Range("K" & Summary_Table_Row).Value = Percent_Change
+            Range("K" & Summary_Table_Row).NumberFormat = "0.00%"
+         
+             'Add one to the summary table row
+            Summary_Table_Row = Summary_Table_Row + 1
+            
+            If Percent_Change > Greatest_Percent_Increase Then
+            Greatest_Percent_Increase = Percent_Change
+            GPI_ticker = Range("A" & Summary_Table_Row).Value
+
+            End If
+
+            If Percent_Change < Greatest_Percent_Decrease Then
+            Greatest_Percent_Decrease = Percent_Change
+            GPD_ticker = Range("A" & Summary_Table_Row).Value
+            
+            End If
+            
+            If total_stock_volume > Greatest_Total_Volume Then
+            Greatest_Total_Volume = total_stock_volume
+            GTV_ticker = Range("A" & Summary_Table_Row).Value
+
+            End If
+            
+             If Yearly_Change >= 0 Then
+              Range("J" & Summary_Table_Row).Interior.ColorIndex = 4
+            
+            End If
+            
+            If Yearly_Change < 0 Then
+            Range("J" & Summary_Table_Row).Interior.ColorIndex = 3
+
+            End If
+            
+            'Reset the Total_Vol and other variables
+            'Since we are starting the next stock (or we are done if at last row)
+            Total_Vol = 0
+            Yearly_Change = 0
+            Year_Open = 0
+            Year_Close = 0
+          
+            
+            
+        ' If the cell immediately following a row is the same ticker symbol..
+        Else
+        
+            'Add to the total volume
+            Total_Vol = Total_Vol + Cells(i, 7).Value
+
+            
+
+        End If
+    
+                 Next i
+    
+    Cells(2, 15).Value = GPI_ticker
+    Cells(3, 15).Value = GPD_ticker
+    Cells(4, 15).Value = GTV_ticker
+    Cells(2, 16).Value = Greatest_Percent_Increase
+    Cells(2, 16).NumberFormat = "0.00%"
+    Cells(3, 16).Value = Greatest_Percent_Decrease
+    Cells(3, 16).NumberFormat = "0.00%"
+    Cells(4, 16).Value = Greatest_Total_Volume
+
+End Sub
